@@ -1,37 +1,9 @@
 import Calendar from 'telegram-bot-calendar'
 
 import { bot } from '../config.js'
+import { getUserMessage } from './utils.js'
 
 export const events = []
-
-const getUserMessage = async (chatId, needOnlyText, { question, answer, cancelMessage }) => new Promise(resolve => {
-	const cancel = () => {
-		clearTimeout(timer)
-		bot.off('message', listener)
-	}
-
-	const timer = setTimeout(() => {
-		bot.sendMessage(chatId, cancelMessage)
-		cancel()
-		resolve()
-	}, 60_000)
-
-	const listener = async msg => {
-		if (msg.text === '/cancel') {
-			await bot.sendMessage(chatId, cancelMessage)
-			cancel()
-			resolve()
-		}
-		else {
-			answer && (await bot.sendMessage(chatId, answer))
-			cancel()
-			resolve(needOnlyText ? msg.text || msg.caption : msg)
-		}
-	}
-
-	bot.sendMessage(chatId, question)
-	bot.on('message', listener)
-})
 
 const getDate = async chatId => {
 	let currDate = Date.now()
@@ -63,12 +35,12 @@ const getDate = async chatId => {
 }
 
 export const addEvent = async ({ chat }) => {
-	const name = await getUserMessage(chat.id, true, {
+	const text = (await getUserMessage(chat.id, true, {
 		question: 'Как называется ваше мероприятие',
 		cancelMessage: 'Добавление мероприятия отменено'
-	})
+	})).trim()
 
-	if (!name)
+	if (!text)
 		return
 
 	const message = await getUserMessage(chat.id, false, {
@@ -81,7 +53,7 @@ export const addEvent = async ({ chat }) => {
 
 	const date = await getDate(chat.id)
 
-	events.push({ name, message, date })
+	events.push({ text, message, date, callback_data: text })
 }
 
 export const deleteEvent = async () => {
