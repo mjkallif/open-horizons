@@ -1,6 +1,6 @@
 import { bot } from './config.js'
 import { initCommands, help, addAdminCommands } from './utils/initCommands.js'
-import { addEvent, deleteEvent, editEvent } from './utils/events.js'
+import { addEvent, deleteEvent, editEvent } from './utils/admin.js'
 
 const start = async ({ chat }) => {
 	await bot.sendMessage(chat.id, 'Привет я бот психолог, выберите мероприятие', {
