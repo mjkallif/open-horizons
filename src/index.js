@@ -1,9 +1,8 @@
 import { bot } from './config.js'
 import { splitArray } from './utils/utils.js'
-import { initCommands, help, addAdminCommands } from './utils/initCommands.js'
-import { events, addEvent, deleteEvent, editEvent } from './utils/admin.js'
+import { events, addEvent, deleteEvent, editEvent, addAdminCommands } from './utils/admin.js'
 
-const activeEvents = {}
+export const activeEvents = {}
 
 const chooseEvent = async chatId => {
 	if (events.length)
@@ -19,11 +18,11 @@ const chooseEvent = async chatId => {
 	}
 
 	const handleCallbackQuery = async ({ data }) => {
-		bot.sendMessage(chatId, `Вы подписались на мероприятие ${data}`)
-		bot.off('callback_query', handleCallbackQuery)
-
 		!activeEvents[chatId] && (activeEvents[chatId] = [])
 		activeEvents[chatId].push(events.find(event => event.text === data))
+
+		await bot.sendMessage(chatId, `Вы подписались на мероприятие ${data}`)
+		bot.off('callback_query', handleCallbackQuery)
 	}
 
 	bot.on('callback_query', handleCallbackQuery)
@@ -34,10 +33,7 @@ const start = async ({ chat }) => {
 }
 
 const init = () => {
-	initCommands()
-
 	bot.onText(/\/start/, start)
-	bot.onText(/\/help/, help)
 
 	bot.onText(/\/administration/, addAdminCommands)
 	bot.onText(/\/addevent/, addEvent)
