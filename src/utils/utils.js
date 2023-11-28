@@ -6,8 +6,8 @@ export const getUserMessage = async (chatId, needOnlyText, { question, answer, c
 		bot.off('message', listener)
 	}
 
-	const timer = setTimeout(() => {
-		bot.sendMessage(chatId, cancelMessage)
+	const timer = setTimeout(async () => {
+		await bot.sendMessage(chatId, cancelMessage)
 		cancel()
 		resolve()
 	}, 60_000)
