@@ -36,19 +36,32 @@ export const addReminder = (chatId, event) => {
 	const [ day, month, year ] = date.split`.`
 	const reminderTimes = [ '6:00', '10:00', '11:00' ]
 
-	console.log('add')
-
-	setInterval(() => {
+	const reminder = setInterval(() => {
 		const currentDate = new Date()
 
 		reminderTimes.forEach(time => {
-			const [ hours, minutes ] = time.split(':')
+			const [ hours, minutes ] = time.split`:`
 			const reminderDate = new Date(year, month - 1, day, hours, minutes)
 
-			console.log(time, currentDate)
+			currentDate.getTime() >= reminderDate.getTime()
+            && currentDate.getTime() < reminderDate.getTime() + 60_000
+                && bot.sendMessage(chatId, message.text)
 
-			if (currentDate.getTime() >= reminderDate.getTime() && currentDate.getTime() < reminderDate.getTime() + 60_000)
-				bot.sendMessage(chatId, message.text)
+			if (hours === '11') {
+				clearInterval(reminder)
+
+				const deletingEventIdx = events.findIndex(eventToDelete => event.text === eventToDelete.text)
+				if (deletingEventIdx !== -1) {
+					events.splice(deletingEventIdx, 1)
+
+					for (let chatId in activeEvents) {
+						const deletingActiveEventIdx = activeEvents[chatId].findIndex(
+							eventToDelete => event.text === eventToDelete.text
+						)
+						deletingActiveEventIdx !== -1 && activeEvents[chatId].splice(deletingActiveEventIdx, 1)
+					}
+				}
+			}
 		})
 	}, 60_000)
 }
