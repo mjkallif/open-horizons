@@ -1,3 +1,4 @@
+import fs from 'fs'
 import Calendar from 'telegram-bot-calendar'
 
 import { bot } from '../config.js'
@@ -5,7 +6,9 @@ import { activeEvents } from './events.js'
 import { getUserMessage, splitArray } from './utils.js'
 
 export const adminIds = [ 484526571 ]
-export const events = []
+export let events = []
+
+export const initEvents = () => events = JSON.parse(fs.readFileSync('tempdb.json', 'utf-8')).events
 
 const getDate = async chatId => {
 	let currDate = Date.now()
@@ -74,6 +77,8 @@ export const addEvent = async ({ chat }) => {
 	const date = await getDate(chat.id)
 
 	events.push({ text, message, date, callback_data: text })
+
+	fs.writeFileSync('tempdb.json', JSON.stringify({ events, activeEvents }), 'utf-8')
 }
 
 export const deleteEvent = async ({ chat }) => {
@@ -99,6 +104,7 @@ export const deleteEvent = async ({ chat }) => {
 				deletingActiveEventIdx !== -1 && activeEvents[chatId].splice(deletingActiveEventIdx, 1)
 			}
 		}
+		fs.writeFileSync('tempdb.json', JSON.stringify({ events, activeEvents }), 'utf-8')
 
 		await bot.sendMessage(chat.id, `Мероприятие ${data} удалено`)
 		bot.off('callback_query', handleCallbackQuery)
@@ -185,6 +191,7 @@ export const editEvent = async ({ chat }) => {
 				break
 			}
 
+			fs.writeFileSync('tempdb.json', JSON.stringify({ events, activeEvents }), 'utf-8')
 			bot.off('callback_query', handleEditType)
 		}
 

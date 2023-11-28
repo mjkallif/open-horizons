@@ -1,8 +1,12 @@
+import fs from 'fs'
+
 import { bot } from '../config.js'
 import { splitArray } from './utils.js'
 import { events } from './admin.js'
 
-export const activeEvents = {}
+export let activeEvents = {}
+
+export const initActiveEvents = () => activeEvents = JSON.parse(fs.readFileSync('tempdb.json', 'utf-8')).activeEvents
 
 export const chooseEvent = async chatId => new Promise(() => {
 	if (events.length)
@@ -17,17 +21,19 @@ export const chooseEvent = async chatId => new Promise(() => {
 		return
 	}
 
-	const handleCallbackQuery = async ({ data }) => {
+	const handleChoosedEvent = async ({ data }) => {
 		!activeEvents[chatId] && (activeEvents[chatId] = [])
 		activeEvents[chatId].push(events.find(event => event.text === data))
 
-		await bot.sendMessage(chatId, `Вы подписались на мероприятие ${data}`)
-		activeEvents[chatId].forEach(event => addReminder(chatId, event))
+		fs.writeFileSync('tempdb.json', JSON.stringify({ events, activeEvents }), 'utf-8')
 
-		bot.off('callback_query', handleCallbackQuery)
+		await bot.sendMessage(chatId, `Вы подписались на мероприятие ${data}`)
+		addReminder(chatId, activeEvents[chatId].at(-1))
+
+		bot.off('callback_query', handleChoosedEvent)
 	}
 
-	bot.on('callback_query', handleCallbackQuery)
+	bot.on('callback_query', handleChoosedEvent)
 })
 
 export const addReminder = (chatId, event) => {
