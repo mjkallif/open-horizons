@@ -8,12 +8,14 @@ export const getUserMessage = async (chatId, needOnlyText, { question, answer, c
 
 	const timer = setTimeout(async () => {
 		cancelMessage && await bot.sendMessage(chatId, cancelMessage)
+
 		cancel()
 		resolve()
 	}, 60_000)
 
 	const listener = async msg => {
 		cancel()
+
 		if (msg.text === '/cancel') {
 			cancelMessage && await bot.sendMessage(chatId, cancelMessage)
 			resolve()
@@ -28,8 +30,21 @@ export const getUserMessage = async (chatId, needOnlyText, { question, answer, c
 	bot.on('message', listener)
 })
 
+export const getMedia = msg => {
+	let media = []
+
+	if (msg.photo)
+		media = msg.photo.map(photo => ({ type: 'photo', media: photo.file_id }))
+	if (msg.video)
+		media.push({ type: 'video', media: msg.video.file_id })
+	else if (msg.document)
+		media.push({ type: 'document', media: msg.document.file_id })
+
+	return media
+}
+
 export const splitArray = (arr, subarraySize) => {
-	let resultArray = []
+	const resultArray = []
 
 	for (let idx = 0; idx < arr.length; idx += subarraySize)
 		resultArray.push(arr.slice(idx, idx + subarraySize))

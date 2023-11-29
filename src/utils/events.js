@@ -1,7 +1,7 @@
 import fs from 'fs'
 
 import { bot } from '../config.js'
-import { splitArray } from './utils.js'
+import { splitArray, getMedia } from './utils.js'
 import { events } from './admin.js'
 
 export let activeEvents = {}
@@ -40,7 +40,7 @@ export const addReminder = (chatId, event) => {
 	const { message, date } = event
 
 	const [ day, month, year ] = date.split`.`
-	const reminderTimes = [ '6:00', '10:00', '11:00' ]
+	const reminderTimes = [ '09:00', '13:00', '14:00' ]
 
 	const reminder = setInterval(() => {
 		const currentDate = new Date()
@@ -49,22 +49,23 @@ export const addReminder = (chatId, event) => {
 			const [ hours, minutes ] = time.split`:`
 			const reminderDate = new Date(year, month - 1, day, hours, minutes)
 
-			currentDate.getTime() >= reminderDate.getTime()
-            && currentDate.getTime() < reminderDate.getTime() + 60_000
-                && bot.sendMessage(chatId, message.text)
+			if (currentDate.getTime() >= reminderDate.getTime() && currentDate.getTime() < reminderDate.getTime() + 60_000) {
+				bot.sendMessage(chatId, message.text || message.caption)
+				bot.sendMediaGroup(chatId, getMedia(message))
 
-			if (hours === '11') {
-				clearInterval(reminder)
+				if (hours === '11') {
+					clearInterval(reminder)
+					const deletingEventIdx = events.findIndex(eventToDelete => event.text === eventToDelete.text)
 
-				const deletingEventIdx = events.findIndex(eventToDelete => event.text === eventToDelete.text)
-				if (deletingEventIdx !== -1) {
-					events.splice(deletingEventIdx, 1)
+					if (deletingEventIdx !== -1) {
+						events.splice(deletingEventIdx, 1)
 
-					for (let chatId in activeEvents) {
-						const deletingActiveEventIdx = activeEvents[chatId].findIndex(
-							eventToDelete => event.text === eventToDelete.text
-						)
-						deletingActiveEventIdx !== -1 && activeEvents[chatId].splice(deletingActiveEventIdx, 1)
+						for (let chatId in activeEvents) {
+							const deletingActiveEventIdx = activeEvents[chatId].findIndex(
+								eventToDelete => event.text === eventToDelete.text
+							)
+							deletingActiveEventIdx !== -1 && activeEvents[chatId].splice(deletingActiveEventIdx, 1)
+						}
 					}
 				}
 			}
