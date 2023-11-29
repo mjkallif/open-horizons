@@ -23,7 +23,7 @@ export const chooseEvent = async chatId => new Promise(() => {
 
 	const handleChoosedEvent = async ({ data }) => {
 		!activeEvents[chatId] && (activeEvents[chatId] = [])
-		activeEvents[chatId].push(events.find(event => event.text === data))
+		activeEvents[chatId].push(events.find(event => event?.text === data))
 
 		fs.writeFileSync('tempdb.json', JSON.stringify({ events, activeEvents }), 'utf-8')
 
