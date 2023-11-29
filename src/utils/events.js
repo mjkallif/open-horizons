@@ -8,6 +8,18 @@ export let activeEvents = {}
 
 export const initActiveEvents = () => activeEvents = JSON.parse(fs.readFileSync('tempdb.json', 'utf-8'))?.activeEvents || {}
 
+const eventSubscribe = async (chatId, data) => {
+	!activeEvents[chatId] && (activeEvents[chatId] = [])
+	activeEvents[chatId].push(events.find(event => event?.text === data))
+
+	fs.writeFileSync('tempdb.json', JSON.stringify({ events, activeEvents }), 'utf-8')
+
+	await bot.sendMessage(chatId, `Вы подписались на мероприятие ${data}`)
+	addReminder(chatId, activeEvents[chatId].at(-1))
+
+	bot.off('callback_query', () => eventSubscribe(chatId, data))
+}
+
 export const chooseEvent = async chatId => new Promise(() => {
 	if (events.length)
 		bot.sendMessage(
@@ -21,20 +33,30 @@ export const chooseEvent = async chatId => new Promise(() => {
 		return
 	}
 
-	const handleChoosedEvent = async ({ data }) => {
-		!activeEvents[chatId] && (activeEvents[chatId] = [])
-		activeEvents[chatId].push(events.find(event => event?.text === data))
-
-		fs.writeFileSync('tempdb.json', JSON.stringify({ events, activeEvents }), 'utf-8')
-
-		await bot.sendMessage(chatId, `Вы подписались на мероприятие ${data}`)
-		addReminder(chatId, activeEvents[chatId].at(-1))
-
-		bot.off('callback_query', handleChoosedEvent)
-	}
-
-	bot.on('callback_query', handleChoosedEvent)
+	bot.on('callback_query', async ({ data }) => await eventSubscribe(chatId, data))
 })
+
+export const getUserEvents = async ({ chat }) => await bot.sendMessage(
+	chat.id,
+	activeEvents[chat.id] && activeEvents[chat.id].length
+		? activeEvents[chat.id].map(event => `На ${event.date} запланировано ${event.text}`).join`\n`
+		: 'У вас нет запланированных мероприятий'
+)
+
+export const getOtherEvents = async ({ chat }) => {
+	const otherEvents = events.filter(event => !activeEvents[chat.id].some(activeEvent => activeEvent.text === event.text))
+	if (otherEvents.length) {
+		await bot.sendMessage(
+			chat.id,
+			'Выберите мероприятие, на которое вы хотели бы подписаться',
+			{ reply_markup: { inline_keyboard: splitArray(otherEvents, 3) } }
+		)
+
+		bot.on('callback_query', async ({ data }) => await eventSubscribe(chat.id, data))
+	}
+	else
+		await bot.sendMessage(chat.id, 'Вы уже подписаны на все возможные мероприятия')
+}
 
 export const addReminder = (chatId, event) => {
 	const { message, date } = event
@@ -61,9 +83,9 @@ export const addReminder = (chatId, event) => {
 						events.splice(deletingEventIdx, 1)
 
 						for (let chatId in activeEvents) {
-							const deletingActiveEventIdx = activeEvents[chatId].findIndex(
-								eventToDelete => event.text === eventToDelete.text
-							)
+							const deletingActiveEventIdx = activeEvents[chatId]
+								.findIndex(eventToDelete => event.text === eventToDelete.text)
+
 							deletingActiveEventIdx !== -1 && activeEvents[chatId].splice(deletingActiveEventIdx, 1)
 						}
 					}
