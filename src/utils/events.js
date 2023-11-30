@@ -1,7 +1,7 @@
 import fs from 'fs'
 
 import { bot } from '../config.js'
-import { splitArray, getMedia } from './utils.js'
+import { splitArray, getMedia, updateJsonFile } from './utils.js'
 import { events } from './admin.js'
 
 export let activeEvents = {}
@@ -12,8 +12,7 @@ const eventSubscribe = async (chatId, data) => {
 	!activeEvents[chatId] && (activeEvents[chatId] = [])
 	activeEvents[chatId].push(events.find(event => event?.text === data))
 
-	fs.writeFileSync('tempdb.json', JSON.stringify({ events, activeEvents }), 'utf-8')
-
+	updateJsonFile('activeEvents', activeEvents)
 	await bot.sendMessage(chatId, `Вы подписались на мероприятие ${data}`)
 	addReminder(chatId, activeEvents[chatId].at(-1))
 

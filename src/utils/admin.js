@@ -3,7 +3,7 @@ import Calendar from 'telegram-bot-calendar'
 
 import { bot } from '../config.js'
 import { activeEvents } from './events.js'
-import { getUserMessage, splitArray } from './utils.js'
+import { getUserMessage, splitArray, updateJsonFile } from './utils.js'
 
 export const adminIds = [ 484526571, 1242013874 ]
 export let events = []
@@ -47,6 +47,7 @@ const getDate = async chatId => {
 export const addAdminCommands = async ({ chat }) => {
 	if (adminIds.includes(chat.id)) {
 		bot.setMyCommands([
+			{ command: '/edithello', description: 'Отредактируйте приветственное сообщение' },
 			{ command: '/addevent', description: 'Добавьте новое мероприятие' },
 			{ command: '/deleteevent', description: 'Удалите мероприятие' },
 			{ command: '/editevent', description: 'Отредактируйте мероприятие' }
@@ -83,7 +84,7 @@ export const addEvent = async ({ chat }) => {
 
 	events.push({ text, message, date, callback_data: text })
 
-	fs.writeFileSync('tempdb.json', JSON.stringify({ events, activeEvents }), 'utf-8')
+	updateJsonFile('events', events)
 }
 
 export const deleteEvent = async ({ chat }) => {
@@ -205,4 +206,15 @@ export const editEvent = async ({ chat }) => {
 	}
 
 	bot.on('callback_query', handleEditingEvent)
+}
+
+export const editHelloText = async ({ chat }) => {
+	const helloText = getUserMessage(chat.id, true, {
+		question: 'Введите текст приветствия',
+		answer: 'Текст приветствия обновлён',
+		cancelMessage: 'Обновление приветственного текста отменено'
+	})
+
+	updateJsonFile('helloText', helloText)
+	await bot.sendMessage(chat.id, 'Приветсвенный текст обновлен')
 }

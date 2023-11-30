@@ -1,3 +1,5 @@
+import fs from 'fs'
+
 import { bot } from '../config.js'
 
 export const getUserMessage = async (chatId, needOnlyText, { question, answer, cancelMessage }) => new Promise(resolve => {
@@ -50,4 +52,11 @@ export const splitArray = (arr, subarraySize) => {
 		resultArray.push(arr.slice(idx, idx + subarraySize))
 
 	return resultArray
+}
+
+export const updateJsonFile = (property, value) => {
+	const existingData = JSON.parse(fs.readFile('tempdb.json', 'utf8') || {})
+
+	existingData[property] = value
+	fs.writeFile('tempdb.json', JSON.stringify(existingData, null, 2), 'utf8')
 }
