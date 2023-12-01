@@ -55,8 +55,8 @@ export const splitArray = (arr, subarraySize) => {
 }
 
 export const updateJsonFile = (property, value) => {
-	const existingData = JSON.parse(fs.readFile('tempdb.json', 'utf8') || {})
+	const existingData = JSON.parse(fs.readFileSync('tempdb.json', 'utf8') || {})
 
 	existingData[property] = value
-	fs.writeFile('tempdb.json', JSON.stringify(existingData, null, 2), 'utf8')
+	fs.writeFileSync('tempdb.json', JSON.stringify(existingData, null, 2), 'utf8')
 }
