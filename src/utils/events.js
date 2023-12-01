@@ -43,7 +43,10 @@ export const getUserEvents = async ({ chat }) => await bot.sendMessage(
 )
 
 export const getOtherEvents = async ({ chat }) => {
-	const otherEvents = events.filter(event => !activeEvents[chat.id].some(activeEvent => activeEvent.text === event.text))
+	const otherEvents = activeEvents[chat.id] && activeEvents[chat.id].length
+		? events.filter(event => !activeEvents[chat.id].some(activeEvent => activeEvent.text === event.text))
+		: [ ...events ]
+
 	if (otherEvents.length) {
 		await bot.sendMessage(
 			chat.id,
