@@ -8,10 +8,7 @@ import { getUserMessage, splitArray, updateJsonFile } from './utils.js'
 export const adminIds = [ 484526571, 1242013874 ]
 export let events = []
 
-export const initEvents = () => {
-	const data = JSON.parse(fs.readFileSync('tempdb.json', 'utf-8'))
-	events = data.events || []
-}
+export const initEvents = () => events = JSON.parse(fs.readFileSync('tempdb.json', 'utf-8'))?.events || []
 
 const getDate = async chatId => {
 	let currDate = Date.now()
