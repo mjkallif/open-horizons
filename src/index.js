@@ -19,7 +19,7 @@ import {
 const start = async ({ chat }) => {
 	await bot.sendMessage(
 		chat.id,
-		JSON.parse(fs.readFileSync('tempdb.json', 'utf8'))?.helloText || 'Привет, я буду твоим личным помощником',
+		JSON.parse(fs.readFileSync('tempdb.json', 'utf8')).helloText || 'Привет, я буду твоим личным помощником',
 		{ reply_markup: {
 			keyboard: [ [ { text: 'Мои мероприятия' }, { text: 'Подписаться на мероприятие' } ] ]
 		} }
