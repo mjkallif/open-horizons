@@ -13,7 +13,7 @@ export const initActiveEvents = () => {
 
 const eventSubscribe = async (chatId, data) => {
 	!activeEvents[chatId] && (activeEvents[chatId] = [])
-	activeEvents[chatId].push(events.find(event => event?.text === data))
+	activeEvents[chatId].push(events.find(event => event.text === data))
 
 	updateJsonFile('activeEvents', activeEvents)
 	await bot.sendMessage(chatId, `Вы подписались на мероприятие ${data}`)
