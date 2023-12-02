@@ -6,7 +6,10 @@ import { events } from './admin.js'
 
 export let activeEvents = {}
 
-export const initActiveEvents = () => activeEvents = JSON.parse(fs.readFileSync('tempdb.json', 'utf-8'))?.activeEvents || {}
+export const initActiveEvents = () => {
+	const data = JSON.parse(fs.readFileSync('tempdb.json', 'utf-8'))
+	activeEvents = data.activeEvents || {}
+}
 
 const eventSubscribe = async (chatId, data) => {
 	!activeEvents[chatId] && (activeEvents[chatId] = [])
