@@ -216,5 +216,4 @@ export const editHelloText = async ({ chat }) => {
 	})
 
 	updateJsonFile('helloText', helloText)
-	await bot.sendMessage(chat.id, 'Приветсвенный текст обновлен')
 }
