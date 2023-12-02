@@ -8,7 +8,7 @@ import { getUserMessage, splitArray, updateJsonFile } from './utils.js'
 export const adminIds = [ 484526571, 1242013874 ]
 export let events = []
 
-export const initEvents = () => events = JSON.parse(fs.readFileSync('tempdb.json', 'utf-8'))?.events || []
+export const initEvents = () => events = JSON.parse(fs.readFileSync('tempdb.json', 'utf-8')).events || []
 
 const getDate = async chatId => {
 	let currDate = Date.now()
@@ -101,12 +101,12 @@ export const deleteEvent = async ({ chat }) => {
 		return await bot.sendMessage(chat.id, 'Cейчас не запланировано никаких мероприятий')
 
 	const handleCallbackQuery = async ({ data }) => {
-		const deletingEventIdx = events.findIndex(event => event?.text === data)
+		const deletingEventIdx = events.findIndex(event => event.text === data)
 		if (deletingEventIdx !== -1) {
 			events.splice(deletingEventIdx, 1)
 
 			for (let chatId in activeEvents) {
-				const deletingActiveEventIdx = activeEvents[chatId].findIndex(event => event?.text === data)
+				const deletingActiveEventIdx = activeEvents[chatId].findIndex(event => event.text === data)
 				deletingActiveEventIdx !== -1 && activeEvents[chatId].splice(deletingActiveEventIdx, 1)
 			}
 		}
@@ -133,7 +133,7 @@ export const editEvent = async ({ chat }) => {
 		return await bot.sendMessage(chat.id, 'Cейчас не запланировано никаких мероприятий')
 
 	const handleEditingEvent = async ({ data }) => {
-		const editingEventIdx = events.findIndex(event => event?.text === data)
+		const editingEventIdx = events.findIndex(event => event.text === data)
 		editingEventIdx !== -1 && await bot.sendMessage( chat.id, 'Что вы хотите изменить', {
 			reply_markup: { inline_keyboard: [ [
 				{ text: 'Название', callback_data: 'editname' },
@@ -160,7 +160,7 @@ export const editEvent = async ({ chat }) => {
 				events[editingEventIdx].callback_data = events[editingEventIdx].text = text.trim()
 
 				for (let chatId in activeEvents) {
-					const editingActiveEventIdx = activeEvents[chatId].findIndex(event => event?.text === data)
+					const editingActiveEventIdx = activeEvents[chatId].findIndex(event => event.text === data)
 					editingActiveEventIdx !== -1 &&
 						(activeEvents[chatId].text = activeEvents[chatId].callback_data = events[editingEventIdx].text)
 				}
@@ -182,7 +182,7 @@ export const editEvent = async ({ chat }) => {
 				events[editingEventIdx].message = message
 
 				for (let chatId in activeEvents) {
-					const editingActiveEventIdx = activeEvents[chatId].findIndex(event => event?.text === data)
+					const editingActiveEventIdx = activeEvents[chatId].findIndex(event => event.text === data)
 					editingActiveEventIdx !== -1 && (activeEvents[chatId].message = { ...events[editingEventIdx].message })
 				}
 				break
@@ -191,7 +191,7 @@ export const editEvent = async ({ chat }) => {
 				events[editingEventIdx].date = await getDate(chat.id)
 
 				for (let chatId in activeEvents) {
-					const editingActiveEventIdx = activeEvents[chatId].findIndex(event => event?.text === data)
+					const editingActiveEventIdx = activeEvents[chatId].findIndex(event => event.text === data)
 					editingActiveEventIdx !== -1 && (activeEvents[chatId].date = events[editingEventIdx].date)
 				}
 				break
