@@ -17,13 +17,9 @@ import {
 } from './utils/admin.js'
 
 const start = async ({ chat }) => {
-	const fileContent = fs.readFileSync('tempdb.json', 'utf8')
-	const parsedData = fileContent ? JSON.parse(fileContent) : {}
-	const helloText = parsedData && parsedData.helloText ? parsedData.helloText : 'Привет, я буду твоим личным помощником'
-
 	await bot.sendMessage(
 		chat.id,
-		helloText,
+		JSON.parse(fs.readFileSync('tempdb.json', 'utf8')).helloText || 'Привет, я буду твоим личным помощником',
 		{ reply_markup: {
 			keyboard: [ [ { text: 'Мои мероприятия' }, { text: 'Подписаться на мероприятие' } ] ]
 		} }
