@@ -21,7 +21,7 @@ const start = async ({ chat }) => {
 		chat.id,
 		JSON.parse(fs.readFileSync('tempdb.json', 'utf8')).helloText || 'Привет, я буду твоим личным помощником',
 		{ reply_markup: {
-			keyboard: [ [ { text: 'Мои мероприятия' }, { text: 'Подписаться на мероприятие' } ] ]
+			keyboard: [ [ { text: 'Мои мероприятия' } ], [ { text: 'Подписаться на мероприятие' } ] ]
 		} }
 	)
 	await chooseEvent(chat.id)

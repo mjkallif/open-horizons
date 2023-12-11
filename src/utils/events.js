@@ -57,7 +57,10 @@ export const getOtherEvents = async ({ chat }) => {
 		bot.on('callback_query', async ({ data }) => await eventSubscribe(chat.id, data))
 	}
 	else
-		await bot.sendMessage(chat.id, 'Вы уже подписаны на все возможные мероприятия')
+		await bot.sendMessage(chat.id, events.length
+			? 'Вы уже подписаны на все возможные мероприятия'
+			: 'В ближайшее время не планируется никаких мероприятий'
+		)
 }
 
 export const addReminder = (chatId, event) => {
