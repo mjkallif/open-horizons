@@ -210,7 +210,7 @@ export const editEvent = async ({ chat }) => {
 
 export const editHelloText = async ({ chat }) => {
 	const helloText = await getUserMessage(chat.id, true, {
-		question: 'Введите текст приветствия',
+		question: 'Введите текст приветствия.\nДля того чтобы обратиться к пользователю по имени напишите вместо имени {first_name}, для обращения по фамилии напишите вместо фамилии {last_name}',
 		answer: 'Текст приветствия обновлён',
 		cancelMessage: 'Обновление приветственного текста отменено'
 	})

@@ -17,15 +17,21 @@ import {
 } from './utils/admin.js'
 
 const start = async ({ chat }) => {
+	const helloText = (
+		JSON.parse(fs.readFileSync('tempdb.json', 'utf8')).helloText ||
+		'Привет, {first_name}'
+	).replace(/{first_name}/g, chat.first_name).replace(/{last_name}/g, chat.last_name)
+
 	await bot.sendMessage(
 		chat.id,
-		JSON.parse(fs.readFileSync('tempdb.json', 'utf8')).helloText || 'Привет, я буду твоим личным помощником',
-		{ reply_markup: {
-			keyboard: [ [ { text: 'Мои мероприятия' } ], [ { text: 'Подписаться на мероприятие' } ] ]
-		} }
+		helloText,
+		{ reply_markup: { keyboard: [ [ { text: 'Мои мероприятия' } ], [ { text: 'Подписаться на мероприятие' } ] ] } }
 	)
+	
 	await chooseEvent(chat.id)
 }
+
+const handleAnotherText = async ({ chat }) => await bot.sendMessage(chat.id, 'Извините, я вас не понимаю. Попробуйте воспользоваться кнопками "Мои мероприятия" или "Подписаться на мероприятие"')
 
 const init = () => {
 	initEvents()
@@ -41,6 +47,8 @@ const init = () => {
 	bot.onText(/\/addevent/, addEvent)
 	bot.onText(/\/deleteevent/, deleteEvent)
 	bot.onText(/\/editevent/, editEvent)
+
+	bot.onText(/.*/, handleAnotherText)
 }
 
 init()
