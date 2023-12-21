@@ -16,15 +16,17 @@ export const getUserMessage = async (chatId, needOnlyText, { question, answer, c
 	}, 60_000)
 
 	const listener = async msg => {
-		cancel()
+		if (msg.chat.id === chatId) {
+			cancel()
 
-		if (msg.text === '/cancel') {
-			cancelMessage && await bot.sendMessage(chatId, cancelMessage)
-			resolve()
-		}
-		else {
-			answer && await bot.sendMessage(chatId, answer)
-			resolve(needOnlyText ? msg.text || msg.caption : msg)
+			if (msg.text === '/cancel') {
+				cancelMessage && await bot.sendMessage(chatId, cancelMessage)
+				resolve()
+			}
+			else {
+				answer && await bot.sendMessage(chatId, answer)
+				resolve(needOnlyText ? msg.text || msg.caption : msg)
+			}
 		}
 	}
 
