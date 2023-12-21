@@ -47,8 +47,6 @@ const init = () => {
 	bot.onText(/\/addevent/, addEvent)
 	bot.onText(/\/deleteevent/, deleteEvent)
 	bot.onText(/\/editevent/, editEvent)
-
-	bot.onText(/.*/, handleAnotherText)
 }
 
 init()
