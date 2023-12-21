@@ -5,6 +5,7 @@ import { splitArray, getMedia, updateJsonFile } from './utils.js'
 import { events } from './admin.js'
 
 export let activeEvents = {}
+const reminders = []
 
 export const initActiveEvents = () => activeEvents = JSON.parse(fs.readFileSync('tempdb.json', 'utf-8')).activeEvents || {}
 
@@ -63,13 +64,33 @@ export const getOtherEvents = async ({ chat }) => {
 		)
 }
 
+export const deleteReminder = (chatId, text) => {
+	clearInterval(reminders[chatId][text])
+	delete reminders[chatId][text]
+
+	const deletingEventIdx = events.findIndex(eventToDelete => text === eventToDelete.text)
+	
+	if (deletingEventIdx !== -1) {
+		events.splice(deletingEventIdx, 1)
+
+		for (let chatId in activeEvents) {
+			const deletingActiveEventIdx = activeEvents[chatId]
+				.findIndex(eventToDelete => text === eventToDelete.text)
+
+			deletingActiveEventIdx !== -1 && activeEvents[chatId].splice(deletingActiveEventIdx, 1)
+		}
+	}
+}
+
 export const addReminder = (chatId, event) => {
-	const { message, date } = event
+	const { text, message, date } = event
 
 	const [ day, month, year ] = date.split`.`
 	const reminderTimes = [ '09:00', '13:00', '14:00' ]
 
-	const reminder = setInterval(() => {
+	!reminders[chatId] && (reminders[chatId] = [])
+
+	reminders[chatId][text] = setInterval(() => {
 		const currentDate = new Date()
 
 		reminderTimes.forEach(time => {
@@ -80,21 +101,7 @@ export const addReminder = (chatId, event) => {
 				bot.sendMessage(chatId, message.text || message.caption)
 				bot.sendMediaGroup(chatId, getMedia(message))
 
-				if (hours === '11') {
-					clearInterval(reminder)
-					const deletingEventIdx = events.findIndex(eventToDelete => event.text === eventToDelete.text)
-
-					if (deletingEventIdx !== -1) {
-						events.splice(deletingEventIdx, 1)
-
-						for (let chatId in activeEvents) {
-							const deletingActiveEventIdx = activeEvents[chatId]
-								.findIndex(eventToDelete => event.text === eventToDelete.text)
-
-							deletingActiveEventIdx !== -1 && activeEvents[chatId].splice(deletingActiveEventIdx, 1)
-						}
-					}
-				}
+				hours === '14' && deleteReminder(chatId, text)
 			}
 		})
 	}, 60_000)

@@ -2,7 +2,7 @@ import fs from 'fs'
 import Calendar from 'telegram-bot-calendar'
 
 import { bot } from '../config.js'
-import { activeEvents } from './events.js'
+import { activeEvents, addReminder, deleteReminder } from './events.js'
 import { getUserMessage, splitArray, updateJsonFile } from './utils.js'
 
 export const adminIds = [ 484526571, 1242013874 ]
@@ -157,13 +157,13 @@ export const editEvent = async ({ chat }) => {
 					return
 				}
 
+				for (let chatId in activeEvents) {
+					const editingActiveEventIdx = activeEvents[chatId].findIndex(event => event.text === events[editingEventIdx].text)
+					editingActiveEventIdx !== -1 &&
+						(activeEvents[chatId][editingActiveEventIdx].text = activeEvents[chatId][editingActiveEventIdx].callback_data = text.trim())
+				}
 				events[editingEventIdx].callback_data = events[editingEventIdx].text = text.trim()
 
-				for (let chatId in activeEvents) {
-					const editingActiveEventIdx = activeEvents[chatId].findIndex(event => event.text === data)
-					editingActiveEventIdx !== -1 &&
-						(activeEvents[chatId].text = activeEvents[chatId].callback_data = events[editingEventIdx].text)
-				}
 				break
 			}
 			case 'editmsg': {
@@ -179,21 +179,28 @@ export const editEvent = async ({ chat }) => {
 					return
 				}
 
-				events[editingEventIdx].message = message
-
+				
 				for (let chatId in activeEvents) {
-					const editingActiveEventIdx = activeEvents[chatId].findIndex(event => event.text === data)
-					editingActiveEventIdx !== -1 && (activeEvents[chatId].message = { ...events[editingEventIdx].message })
+					const editingActiveEventIdx = activeEvents[chatId].findIndex(event => event.text === events[editingEventIdx].text)
+					editingActiveEventIdx !== -1 && (activeEvents[chatId][editingActiveEventIdx].message = { message })
 				}
+				events[editingEventIdx].message = { ...message }
+
 				break
 			}
 			case 'editdate':
-				events[editingEventIdx].date = await getDate(chat.id)
-
+				const newDate = await getDate(chat.id)
 				for (let chatId in activeEvents) {
-					const editingActiveEventIdx = activeEvents[chatId].findIndex(event => event.text === data)
-					editingActiveEventIdx !== -1 && (activeEvents[chatId].date = events[editingEventIdx].date)
+					const editingActiveEventIdx = activeEvents[chatId].findIndex(event => event.text === events[editingEventIdx].text)
+
+					if (editingActiveEventIdx !== -1) {
+						deleteReminder(chatId, activeEvents[chatId][editingActiveEventIdx].text)
+						activeEvents[chatId][editingActiveEventIdx].date = newDate
+						addReminder(chatId, activeEvents[chatId][editingActiveEventIdx])
+					}
 				}
+				events[editingEventIdx].date = newDate
+
 				break
 			}
 
