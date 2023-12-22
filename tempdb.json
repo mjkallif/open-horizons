@@ -49,6 +49,35 @@
       },
       "date": "24.12.2023",
       "callback_data": "ttttt"
+    },
+    {
+      "text": "Абоба",
+      "message": {
+        "message_id": 1683,
+        "from": {
+          "id": 484526571,
+          "is_bot": false,
+          "first_name": "Daniil",
+          "last_name": "Zheleznyakov",
+          "username": "Hekotok",
+          "language_code": "ru"
+        },
+        "chat": {
+          "id": 484526571,
+          "first_name": "Daniil",
+          "last_name": "Zheleznyakov",
+          "username": "Hekotok",
+          "type": "private"
+        },
+        "date": 1703264720,
+        "text": "שלומ"
+      },
+      "date": "31.12.2023",
+      "callback_data": "Абоба",
+      "time": [
+        "10:00",
+        "11:00"
+      ]
     }
   ],
   "activeEvents": {

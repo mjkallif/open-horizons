@@ -2,7 +2,7 @@ import fs from 'fs'
 import Calendar from 'telegram-bot-calendar'
 
 import { bot } from '../config.js'
-import { activeEvents, addReminder, deleteReminder } from './events.js'
+import { activeEvents } from './events.js'
 import { getUserMessage, splitArray, updateJsonFile } from './utils.js'
 
 export const adminIds = [ 484526571, 1242013874 ]
@@ -26,7 +26,7 @@ const getDate = async chatId => {
 				if (new Date(selectedDate) <= new Date())
 					await bot.sendMessage(chatId, 'Извините, но нельзя запланировать мероприятие на прошлое')
 				else {
-					await bot.sendMessage(chatId, `Мероприятие запланировано на ${selectedDate}`)
+					await bot.sendMessage(chatId, `Установлена дата ${selectedDate}`)
 					await bot.deleteMessage(chatId, messageId)
 					bot.off('callback_query', handleCallbackQuery)
 
@@ -68,7 +68,13 @@ export const addEvent = async ({ chat }) => {
 
 	const date = await getDate(chat.id)
 
-	events.push({ text, message, date, callback_data: text })
+	const time = (await getUserMessage(chat.id, true, {
+		question: 'Через запятую введите время, в которое вы хотели бы отправлять уведомления\nНапример:\n10:00, 12:00, 13:30, 15:45',
+		cancelMessage: 'Добавление мероприятия отменено',
+		answer: `Мероприятие запланировано на ${date}`
+	})).replace(/\s/g, '').split`,`
+
+	events.push({ text, message, date, callback_data: text, time })
 
 	updateJsonFile('events', events)
 }
@@ -180,11 +186,8 @@ export const editEvent = async ({ chat }) => {
 					const editingActiveEventIdx = activeEvents[chatId]
 						.findIndex(event => event.text === events[editingEventIdx].text)
 
-					if (editingActiveEventIdx !== -1) {
-						deleteReminder(chatId, activeEvents[chatId][editingActiveEventIdx].text)
+					if (editingActiveEventIdx !== -1)
 						activeEvents[chatId][editingActiveEventIdx].date = newDate
-						addReminder(chatId, activeEvents[chatId][editingActiveEventIdx])
-					}
 				}
 				events[editingEventIdx].date = newDate
 

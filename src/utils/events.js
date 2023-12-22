@@ -1,11 +1,10 @@
 import fs from 'fs'
 
 import { bot } from '../config.js'
-import { splitArray, getMedia, updateJsonFile } from './utils.js'
+import { splitArray, updateJsonFile } from './utils.js'
 import { events } from './admin.js'
 
 export let activeEvents = {}
-const reminders = []
 
 export const initActiveEvents = () => activeEvents = JSON.parse(fs.readFileSync('tempdb.json', 'utf-8')).activeEvents || {}
 
@@ -15,7 +14,6 @@ const eventSubscribe = async (chatId, data) => {
 
 	updateJsonFile('activeEvents', activeEvents)
 	await bot.sendMessage(chatId, `Вы подписались на мероприятие ${data}`)
-	addReminder(chatId, activeEvents[chatId].at(-1))
 
 	bot.off('callback_query', () => eventSubscribe(chatId, data))
 }
@@ -62,47 +60,4 @@ export const getOtherEvents = async ({ chat }) => {
 			? 'Вы уже подписаны на все возможные мероприятия'
 			: 'В ближайшее время не планируется никаких мероприятий'
 		)
-}
-
-export const deleteReminder = (chatId, text) => {
-	clearInterval(reminders[chatId][text])
-	delete reminders[chatId][text]
-
-	const deletingEventIdx = events.findIndex(eventToDelete => text === eventToDelete.text)
-
-	if (deletingEventIdx !== -1) {
-		events.splice(deletingEventIdx, 1)
-
-		for (let chatId in activeEvents) {
-			const deletingActiveEventIdx = activeEvents[chatId]
-				.findIndex(eventToDelete => text === eventToDelete.text)
-
-			deletingActiveEventIdx !== -1 && activeEvents[chatId].splice(deletingActiveEventIdx, 1)
-		}
-	}
-}
-
-export const addReminder = (chatId, event) => {
-	const { text, message, date } = event
-
-	const [ day, month, year ] = date.split`.`
-	const reminderTimes = [ '09:00', '13:00', '14:00' ]
-
-	!reminders[chatId] && (reminders[chatId] = [])
-
-	reminders[chatId][text] = setInterval(() => {
-		const currentDate = new Date()
-
-		reminderTimes.forEach(time => {
-			const [ hours, minutes ] = time.split`:`
-			const reminderDate = new Date(year, month - 1, day, hours, minutes)
-
-			if (currentDate.getTime() >= reminderDate.getTime() && currentDate.getTime() < reminderDate.getTime() + 60_000) {
-				bot.sendMessage(chatId, message.text || message.caption)
-				bot.sendMediaGroup(chatId, getMedia(message))
-
-				hours === '14' && deleteReminder(chatId, text)
-			}
-		})
-	}, 60_000)
 }
