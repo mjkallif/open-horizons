@@ -69,7 +69,7 @@ export const deleteReminder = (chatId, text) => {
 	delete reminders[chatId][text]
 
 	const deletingEventIdx = events.findIndex(eventToDelete => text === eventToDelete.text)
-	
+
 	if (deletingEventIdx !== -1) {
 		events.splice(deletingEventIdx, 1)
 

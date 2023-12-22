@@ -1,1 +1,109 @@
-{"events":[{"text":"test1","message":{"message_id":1411,"from":{"id":484526571,"is_bot":false,"first_name":"Daniil","last_name":"Zheleznyakov","username":"Hekotok","language_code":"ru"},"chat":{"id":484526571,"first_name":"Daniil","last_name":"Zheleznyakov","username":"Hekotok","type":"private"},"date":1703179931,"text":"testtest"},"date":"31.12.2023","callback_data":"test1"},{"text":"ttttt","message":{"message_id":1448,"from":{"id":484526571,"is_bot":false,"first_name":"Daniil","last_name":"Zheleznyakov","username":"Hekotok","language_code":"ru"},"chat":{"id":484526571,"first_name":"Daniil","last_name":"Zheleznyakov","username":"Hekotok","type":"private"},"date":1703181033,"text":"wqe"},"date":"24.12.2023","callback_data":"ttttt"}],"activeEvents":{"484526571":[{"text":"test1","message":{"message_id":1411,"from":{"id":484526571,"is_bot":false,"first_name":"Daniil","last_name":"Zheleznyakov","username":"Hekotok","language_code":"ru"},"chat":{"id":484526571,"first_name":"Daniil","last_name":"Zheleznyakov","username":"Hekotok","type":"private"},"date":1703179931,"text":"testtest"},"date":"31.12.2023","callback_data":"test1"},{"text":"ttttt","message":{"message_id":1448,"from":{"id":484526571,"is_bot":false,"first_name":"Daniil","last_name":"Zheleznyakov","username":"Hekotok","language_code":"ru"},"chat":{"id":484526571,"first_name":"Daniil","last_name":"Zheleznyakov","username":"Hekotok","type":"private"},"date":1703181033,"text":"wqe"},"date":"24.12.2023","callback_data":"ttttt"}]}}
+{
+  "events": [
+    {
+      "text": "test1",
+      "message": {
+        "message_id": 1411,
+        "from": {
+          "id": 484526571,
+          "is_bot": false,
+          "first_name": "Daniil",
+          "last_name": "Zheleznyakov",
+          "username": "Hekotok",
+          "language_code": "ru"
+        },
+        "chat": {
+          "id": 484526571,
+          "first_name": "Daniil",
+          "last_name": "Zheleznyakov",
+          "username": "Hekotok",
+          "type": "private"
+        },
+        "date": 1703179931,
+        "text": "testtest"
+      },
+      "date": "31.12.2023",
+      "callback_data": "test1"
+    },
+    {
+      "text": "ttttt",
+      "message": {
+        "message_id": 1448,
+        "from": {
+          "id": 484526571,
+          "is_bot": false,
+          "first_name": "Daniil",
+          "last_name": "Zheleznyakov",
+          "username": "Hekotok",
+          "language_code": "ru"
+        },
+        "chat": {
+          "id": 484526571,
+          "first_name": "Daniil",
+          "last_name": "Zheleznyakov",
+          "username": "Hekotok",
+          "type": "private"
+        },
+        "date": 1703181033,
+        "text": "wqe"
+      },
+      "date": "24.12.2023",
+      "callback_data": "ttttt"
+    }
+  ],
+  "activeEvents": {
+    "484526571": [
+      {
+        "text": "test1",
+        "message": {
+          "message_id": 1411,
+          "from": {
+            "id": 484526571,
+            "is_bot": false,
+            "first_name": "Daniil",
+            "last_name": "Zheleznyakov",
+            "username": "Hekotok",
+            "language_code": "ru"
+          },
+          "chat": {
+            "id": 484526571,
+            "first_name": "Daniil",
+            "last_name": "Zheleznyakov",
+            "username": "Hekotok",
+            "type": "private"
+          },
+          "date": 1703179931,
+          "text": "testtest"
+        },
+        "date": "31.12.2023",
+        "callback_data": "test1"
+      },
+      {
+        "text": "ttttt",
+        "message": {
+          "message_id": 1448,
+          "from": {
+            "id": 484526571,
+            "is_bot": false,
+            "first_name": "Daniil",
+            "last_name": "Zheleznyakov",
+            "username": "Hekotok",
+            "language_code": "ru"
+          },
+          "chat": {
+            "id": 484526571,
+            "first_name": "Daniil",
+            "last_name": "Zheleznyakov",
+            "username": "Hekotok",
+            "type": "private"
+          },
+          "date": 1703181033,
+          "text": "wqe"
+        },
+        "date": "24.12.2023",
+        "callback_data": "ttttt"
+      }
+    ]
+  },
+  "helloText": "Привет, {first_name}"
+}
