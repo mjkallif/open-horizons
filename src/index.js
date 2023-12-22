@@ -11,12 +11,19 @@ import {
 	addEvent,
 	deleteEvent,
 	editEvent,
-	addAdminCommands,
+	adminIds,
 	initEvents,
 	editHelloText
 } from './utils/admin.js'
 
 const start = async ({ chat }) => {
+	bot.setMyCommands(adminIds.includes(chat.id) ? [
+		{ command: '/edithello', description: 'Отредактируйте приветственное сообщение' },
+		{ command: '/addevent', description: 'Добавьте новое мероприятие' },
+		{ command: '/deleteevent', description: 'Удалите мероприятие' },
+		{ command: '/editevent', description: 'Отредактируйте мероприятие' }
+	] : [])
+
 	const helloText = (
 		JSON.parse(fs.readFileSync('tempdb.json', 'utf8')).helloText ||
 		'Привет, {first_name}'
@@ -27,11 +34,9 @@ const start = async ({ chat }) => {
 		helloText,
 		{ reply_markup: { keyboard: [ [ { text: 'Мои мероприятия' } ], [ { text: 'Подписаться на мероприятие' } ] ] } }
 	)
-	
+
 	await chooseEvent(chat.id)
 }
-
-const handleAnotherText = async ({ chat }) => await bot.sendMessage(chat.id, 'Извините, я вас не понимаю. Попробуйте воспользоваться кнопками "Мои мероприятия" или "Подписаться на мероприятие"')
 
 const init = () => {
 	initEvents()
@@ -42,7 +47,6 @@ const init = () => {
 	bot.onText(/Мои мероприятия/, getUserEvents)
 	bot.onText(/Подписаться на мероприятие/, getOtherEvents)
 
-	bot.onText(/\/administration/, addAdminCommands)
 	bot.onText(/\/edithello/, editHelloText)
 	bot.onText(/\/addevent/, addEvent)
 	bot.onText(/\/deleteevent/, deleteEvent)

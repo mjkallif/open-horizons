@@ -44,20 +44,6 @@ const getDate = async chatId => {
 	})
 }
 
-export const addAdminCommands = async ({ chat }) => {
-	if (adminIds.includes(chat.id)) {
-		bot.setMyCommands([
-			{ command: '/edithello', description: 'Отредактируйте приветственное сообщение' },
-			{ command: '/addevent', description: 'Добавьте новое мероприятие' },
-			{ command: '/deleteevent', description: 'Удалите мероприятие' },
-			{ command: '/editevent', description: 'Отредактируйте мероприятие' }
-		])
-		await bot.sendMessage(chat.id, 'Включен режим администрирования')
-	}
-	else
-		await bot.sendMessage(chat.id, 'Извините, у вас нет доступа к командам администратора')
-}
-
 export const addEvent = async ({ chat }) => {
 	if (!adminIds.includes(chat.id))
 		return await bot.sendMessage(chat.id, 'Извините, но эта команда доступна только администраторам бота')
@@ -179,7 +165,6 @@ export const editEvent = async ({ chat }) => {
 					return
 				}
 
-				
 				for (let chatId in activeEvents) {
 					const editingActiveEventIdx = activeEvents[chatId].findIndex(event => event.text === events[editingEventIdx].text)
 					editingActiveEventIdx !== -1 && (activeEvents[chatId][editingActiveEventIdx].message = { message })
@@ -188,10 +173,12 @@ export const editEvent = async ({ chat }) => {
 
 				break
 			}
-			case 'editdate':
+			case 'editdate': {
 				const newDate = await getDate(chat.id)
+
 				for (let chatId in activeEvents) {
-					const editingActiveEventIdx = activeEvents[chatId].findIndex(event => event.text === events[editingEventIdx].text)
+					const editingActiveEventIdx = activeEvents[chatId]
+						.findIndex(event => event.text === events[editingEventIdx].text)
 
 					if (editingActiveEventIdx !== -1) {
 						deleteReminder(chatId, activeEvents[chatId][editingActiveEventIdx].text)
@@ -202,6 +189,7 @@ export const editEvent = async ({ chat }) => {
 				events[editingEventIdx].date = newDate
 
 				break
+			}
 			}
 
 			fs.writeFileSync('tempdb.json', JSON.stringify({ events, activeEvents }), 'utf-8')
