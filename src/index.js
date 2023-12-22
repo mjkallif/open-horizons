@@ -17,22 +17,23 @@ import {
 } from './utils/admin.js'
 
 const start = async ({ chat }) => {
-	bot.setMyCommands(adminIds.includes(chat.id) ? [
-		{ command: '/edithello', description: 'Отредактируйте приветственное сообщение' },
-		{ command: '/addevent', description: 'Добавьте новое мероприятие' },
-		{ command: '/deleteevent', description: 'Удалите мероприятие' },
-		{ command: '/editevent', description: 'Отредактируйте мероприятие' }
-	] : [])
-
 	const helloText = (
 		JSON.parse(fs.readFileSync('tempdb.json', 'utf8')).helloText ||
 		'Привет, {first_name}'
 	).replace(/{first_name}/g, chat.first_name).replace(/{last_name}/g, chat.last_name)
 
+	const commands = adminIds.includes(chat.id)
+		? [
+			[ { text: 'Мои мероприятия' }, { text: 'Подписаться на мероприятие' } ],
+			[ { text: 'Отредактировать приветственное сообщение', callback_data: '/edithello' }, { text: 'Добавить новое мероприятие', callback_data: '/addevent' } ],
+			[ { text: 'Удалить мероприятие', callback_data: '/deleteevent' }, { text: 'Отредактировать мероприятие', callback_data: '/editevent' } ]
+		]
+		: [ [ { text: 'Мои мероприятия' } ], [ { text: 'Подписаться на мероприятие' } ] ]
+
 	await bot.sendMessage(
 		chat.id,
 		helloText,
-		{ reply_markup: { keyboard: [ [ { text: 'Мои мероприятия' } ], [ { text: 'Подписаться на мероприятие' } ] ] } }
+		{ reply_markup: { keyboard: commands } }
 	)
 
 	await chooseEvent(chat.id)
