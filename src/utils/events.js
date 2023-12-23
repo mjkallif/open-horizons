@@ -2,14 +2,14 @@ import { bot } from '../config.js'
 import { splitArray, updateJsonFile } from './utils.js'
 import { events } from './admin.js'
 
-const eventSubscribe = async (chatId, data) => {
-	const updatingEvent = events.find(event => event.text === data)
-	updatingEvent.subs.push(chatId)
-	updateJsonFile('events', events)
+const eventSubscribe = async (chatId, data, { chat }) => {
+	if (chat.id === chatId) {
+		const updatingEvent = events.find(event => event.text === data)
+		updatingEvent.subs.push(chatId)
+		updateJsonFile('events', events)
 
-	await bot.sendMessage(chatId, `Вы подписались на мероприятие ${data}`)
-
-	bot.off('callback_query', () => eventSubscribe(chatId, data))
+		await bot.sendMessage(chatId, `Вы подписались на мероприятие ${data}`)
+	}
 }
 
 export const chooseEvent = async chatId => new Promise(() => {
@@ -25,7 +25,7 @@ export const chooseEvent = async chatId => new Promise(() => {
 		return
 	}
 
-	bot.on('callback_query', async ({ data }) => await eventSubscribe(chatId, data))
+	bot.on('callback_query', async ({ data, message }) => await eventSubscribe(chatId, data, message))
 })
 
 export const getUserEvents = async ({ chat }) => {
@@ -49,5 +49,5 @@ export const getOtherEvents = async ({ chat }) => {
 		'Выберите мероприятие, на которое вы хотели бы подписаться',
 		{ reply_markup: { inline_keyboard: splitArray(otherEvents, 3) } }
 	)
-	bot.on('callback_query', async ({ data }) => await eventSubscribe(chat.id, data))
+	bot.on('callback_query', async ({ data, message }) => await eventSubscribe(chat.id, data, message))
 }

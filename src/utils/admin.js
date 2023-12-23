@@ -9,6 +9,20 @@ export let events = []
 
 export const initEvents = () => events = JSON.parse(fs.readFileSync('tempdb.json', 'utf-8')).events || []
 
+const checkTime = times => {
+	if (!Array.isArray(times))
+		return 'Кажется что-то пошло не так, попробуйте еще раз'
+	if (!times.length)
+		return 'Похоже вы не ввели время, попробуйте еще раз'
+	for (let timeIdx = 0; timeIdx < times.length; timeIdx++) {
+		const [ hours, minutes ] = times[timeIdx].split`:`
+		if (hours > 23 || hours < 0 || minutes < 0 || minutes > 59 || !times[timeIdx].includes(':'))
+			return `Вы ввели некорректное время. в 24-часовом формате не существует времени ${times[timeIdx]}`
+	}
+
+	return 0
+}
+
 const getDate = async chatId => {
 	let currDate = Date.now()
 	const ONE_MONTH = 2_592_000_000
@@ -67,14 +81,21 @@ export const addEvent = async ({ chat }) => {
 
 	const date = await getDate(chat.id)
 
-	const time = (await getUserMessage(chat.id, true, {
-		question: 'Через запятую введите время, в которое вы хотели бы отправлять уведомления\nНапример:\n10:00, 12:00, 13:30, 15:45',
-		cancelMessage: 'Добавление мероприятия отменено',
-		answer: `Мероприятие запланировано на ${date}`
-	})).replace(/\s/g, '').split`,`
+	let time = []
+	let timeMessage = 'Через запятую введите время, в которое вы хотели бы отправлять уведомления\nНапример:\n10:00, 12:00, 13:30, 15:45'
+
+	while (timeMessage) {
+		time = (await getUserMessage(chat.id, true, {
+			question: timeMessage,
+			cancelMessage: 'Добавление мероприятия отменено'
+		})).replace(/\s/g, '').split`,`
+
+		timeMessage = checkTime(time)
+	}
+
+	bot.sendMessage(chat.id, `Мероприятие запланировано на ${date}, на ${time.join(', ')}`)
 
 	events.push({ text, message, date, callback_data: text, time, subs: [] })
-
 	updateJsonFile('events', events)
 }
 
