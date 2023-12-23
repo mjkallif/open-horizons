@@ -1,12 +1,7 @@
 import fs from 'fs'
 
 import { bot } from './config.js'
-import {
-	chooseEvent,
-	initActiveEvents,
-	getUserEvents,
-	getOtherEvents
-} from './utils/events.js'
+import { chooseEvent, getUserEvents, getOtherEvents } from './utils/events.js'
 import {
 	addEvent,
 	deleteEvent,
@@ -41,7 +36,6 @@ const start = async ({ chat }) => {
 
 const init = () => {
 	initEvents()
-	initActiveEvents()
 
 	bot.onText(/\/start/, start)
 

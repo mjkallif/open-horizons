@@ -2,7 +2,6 @@ import fs from 'fs'
 import Calendar from 'telegram-bot-calendar'
 
 import { bot } from '../config.js'
-import { activeEvents } from './events.js'
 import { getUserMessage, splitArray, updateJsonFile } from './utils.js'
 
 export const adminIds = [ 484526571, 1242013874 ]
@@ -74,7 +73,7 @@ export const addEvent = async ({ chat }) => {
 		answer: `Мероприятие запланировано на ${date}`
 	})).replace(/\s/g, '').split`,`
 
-	events.push({ text, message, date, callback_data: text, time })
+	events.push({ text, message, date, callback_data: text, time, subs: [] })
 
 	updateJsonFile('events', events)
 }
@@ -94,17 +93,14 @@ export const deleteEvent = async ({ chat }) => {
 
 	const handleCallbackQuery = async ({ data }) => {
 		const deletingEventIdx = events.findIndex(event => event.text === data)
+
 		if (deletingEventIdx !== -1) {
 			events.splice(deletingEventIdx, 1)
+			fs.writeFileSync('tempdb.json', JSON.stringify({ events }), 'utf-8')
 
-			for (let chatId in activeEvents) {
-				const deletingActiveEventIdx = activeEvents[chatId].findIndex(event => event.text === data)
-				deletingActiveEventIdx !== -1 && activeEvents[chatId].splice(deletingActiveEventIdx, 1)
-			}
+			await bot.sendMessage(chat.id, `Мероприятие ${data} удалено`)
 		}
-		fs.writeFileSync('tempdb.json', JSON.stringify({ events, activeEvents }), 'utf-8')
 
-		await bot.sendMessage(chat.id, `Мероприятие ${data} удалено`)
 		bot.off('callback_query', handleCallbackQuery)
 	}
 
@@ -149,11 +145,6 @@ export const editEvent = async ({ chat }) => {
 					return
 				}
 
-				for (let chatId in activeEvents) {
-					const editingActiveEventIdx = activeEvents[chatId].findIndex(event => event.text === events[editingEventIdx].text)
-					editingActiveEventIdx !== -1 &&
-						(activeEvents[chatId][editingActiveEventIdx].text = activeEvents[chatId][editingActiveEventIdx].callback_data = text.trim())
-				}
 				events[editingEventIdx].callback_data = events[editingEventIdx].text = text.trim()
 
 				break
@@ -171,31 +162,17 @@ export const editEvent = async ({ chat }) => {
 					return
 				}
 
-				for (let chatId in activeEvents) {
-					const editingActiveEventIdx = activeEvents[chatId].findIndex(event => event.text === events[editingEventIdx].text)
-					editingActiveEventIdx !== -1 && (activeEvents[chatId][editingActiveEventIdx].message = { message })
-				}
 				events[editingEventIdx].message = { ...message }
 
 				break
 			}
-			case 'editdate': {
-				const newDate = await getDate(chat.id)
-
-				for (let chatId in activeEvents) {
-					const editingActiveEventIdx = activeEvents[chatId]
-						.findIndex(event => event.text === events[editingEventIdx].text)
-
-					if (editingActiveEventIdx !== -1)
-						activeEvents[chatId][editingActiveEventIdx].date = newDate
-				}
-				events[editingEventIdx].date = newDate
+			case 'editdate':
+				events[editingEventIdx].date = await getDate(chat.id)
 
 				break
 			}
-			}
 
-			fs.writeFileSync('tempdb.json', JSON.stringify({ events, activeEvents }), 'utf-8')
+			fs.writeFileSync('tempdb.json', JSON.stringify({ events }), 'utf-8')
 			bot.off('callback_query', handleEditType)
 		}
 
