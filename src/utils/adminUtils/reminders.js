@@ -1,9 +1,11 @@
-import { bot } from '../config.js'
+import { bot } from '../../config.js'
 
-export const createReminders = ({ message, date, time, subs }) => {
+const reminders = {}
+
+export const createReminders = ({ message, date, time, subs, text }) => {
 	const [ day, month, year ] = date.split`.`
 
-	return time.map(eventTime => {
+	reminders[text] = time.map(eventTime => {
 		const [ hours, minutes ] = eventTime.split`:`
 		const reminderTime = new Date(Number(year), Number(month) - 1, Number(day), Number(hours), Number(minutes)) - new Date()
 
@@ -12,4 +14,4 @@ export const createReminders = ({ message, date, time, subs }) => {
 	})
 }
 
-export const deleteReminders = reminders => reminders.forEach(reminder => clearTimeout(reminder))
+export const deleteReminders = text => reminders[text].forEach(reminder => clearTimeout(reminder))

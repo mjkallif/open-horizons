@@ -9,13 +9,12 @@ import {
 	adminIds,
 	initEvents,
 	editHelloText
-} from './utils/admin.js'
+} from './utils/adminUtils/admin.js'
 
 const start = async ({ chat }) => {
-	const helloText = (
-		JSON.parse(fs.readFileSync('tempdb.json', 'utf8')).helloText ||
-		'Привет, {first_name}'
-	).replace(/{first_name}/g, chat.first_name).replace(/{last_name}/g, chat.last_name)
+	const helloText = (JSON.parse(fs.readFileSync('tempdb.json', 'utf8')).helloText || 'Привет, {first_name}')
+		.replace(/{first_name}/g, chat.first_name || '')
+		.replace(/{last_name}/g, chat.last_name || '')
 
 	const commands = adminIds.includes(chat.id)
 		? [
@@ -26,12 +25,7 @@ const start = async ({ chat }) => {
 		]
 		: [ [ { text: 'Мои мероприятия' } ], [ { text: 'Подписаться на мероприятие' } ] ]
 
-	await bot.sendMessage(
-		chat.id,
-		helloText,
-		{ reply_markup: { keyboard: commands } }
-	)
-
+	await bot.sendMessage( chat.id, helloText, { reply_markup: { keyboard: commands } })
 	await chooseEvent(chat.id)
 }
 

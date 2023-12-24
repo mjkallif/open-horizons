@@ -1,6 +1,6 @@
 import { bot } from '../config.js'
 import { splitArray, updateJsonFile } from './utils.js'
-import { events } from './admin.js'
+import { events } from './adminUtils/admin.js'
 
 const eventSubscribe = async (chatId, data, { chat }) => {
 	if (chat.id === chatId) {
