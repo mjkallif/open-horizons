@@ -3,7 +3,7 @@ import Calendar from 'telegram-bot-calendar'
 
 import { bot } from '../config.js'
 import { getUserMessage, splitArray, updateJsonFile } from './utils.js'
-import { scheduleReminders } from './reminders.js'
+import { deleteReminders, createReminders } from './reminders.js'
 
 export const adminIds = [ 484526571, 1242013874 ]
 export let events = []
@@ -100,10 +100,11 @@ export const addEvent = async ({ chat }) => {
 
 	await bot.sendMessage(chat.id, `Мероприятие запланировано на ${date}, на ${time.join(', ')}`)
 
-	events.push({ text, message, date, callback_data: text, time, subs: [] })
-	updateJsonFile('events', events)
+	const newEvent = { text, message, date, callback_data: text, time, subs: [] }
+	newEvent.reminders = createReminders(newEvent)
 
-	scheduleReminders(events.at(-1))
+	events.push(newEvent)
+	updateJsonFile('events', events)
 }
 
 export const deleteEvent = async ({ chat }) => {
@@ -123,6 +124,7 @@ export const deleteEvent = async ({ chat }) => {
 		const deletingEventIdx = events.findIndex(event => event.text === data)
 
 		if (deletingEventIdx !== -1) {
+			deleteReminders(events[deletingEventIdx].reminders)
 			events.splice(deletingEventIdx, 1)
 			fs.writeFileSync('tempdb.json', JSON.stringify({ events }), 'utf-8')
 
@@ -196,6 +198,8 @@ export const editEvent = async ({ chat }) => {
 			}
 			case 'editdate':
 				events[editingEventIdx].date = await getDate(chat.id)
+				deleteReminders(events[editingEventIdx].reminders)
+				createReminders(events[editingEventIdx])
 
 				break
 			}
