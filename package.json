@@ -15,6 +15,7 @@
     "nodemon": "^3.0.1"
   },
   "dependencies": {
+    "eslint": "^8.56.0",
     "node-telegram-bot-api": "^0.64.0",
     "telegram-bot-calendar": "^1.0.7"
   }

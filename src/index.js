@@ -20,7 +20,7 @@ const start = async ({ chat }) => {
 	const commands = adminIds.includes(chat.id)
 		? [
 			[ { text: 'Мои мероприятия' }, { text: 'Подписаться на мероприятие' } ],
-			[ { text: 'Отредактировать приветственное сообщение' }, { text: 'Добавить новое мероприятие' } ],
+			[ { text: 'Отредактировать приветствие' }, { text: 'Добавить новое мероприятие' } ],
 			[ { text: 'Удалить мероприятие' }, { text: 'Отредактировать мероприятие' } ]
 		]
 		: [ [ { text: 'Мои мероприятия' } ], [ { text: 'Подписаться на мероприятие' } ] ]
@@ -42,7 +42,7 @@ const init = () => {
 	bot.onText(/Мои мероприятия/, getUserEvents)
 	bot.onText(/Подписаться на мероприятие/, getOtherEvents)
 
-	bot.onText(/Отредактировать приветственное сообщение/, editHelloText)
+	bot.onText(/Отредактировать приветствие/, editHelloText)
 	bot.onText(/Добавить новое мероприятие/, addEvent)
 	bot.onText(/Удалить мероприятие/, deleteEvent)
 	bot.onText(/Отредактировать мероприятие/, editEvent)

@@ -3,6 +3,7 @@ import Calendar from 'telegram-bot-calendar'
 
 import { bot } from '../config.js'
 import { getUserMessage, splitArray, updateJsonFile } from './utils.js'
+import { scheduleReminders } from './reminders.js'
 
 export const adminIds = [ 484526571, 1242013874 ]
 export let events = []
@@ -39,7 +40,6 @@ const getDate = async chatId => {
 				if (new Date(selectedDate) <= new Date())
 					await bot.sendMessage(chatId, 'Извините, но нельзя запланировать мероприятие на прошлое')
 				else {
-					await bot.sendMessage(chatId, `Установлена дата ${selectedDate}`)
 					await bot.deleteMessage(chatId, messageId)
 					bot.off('callback_query', handleCallbackQuery)
 
@@ -90,13 +90,18 @@ export const addEvent = async ({ chat }) => {
 			cancelMessage: 'Добавление мероприятия отменено'
 		})).replace(/\s/g, '').split`,`
 
+		if (!time.length)
+			return
+
 		timeMessage = checkTime(time)
 	}
 
-	bot.sendMessage(chat.id, `Мероприятие запланировано на ${date}, на ${time.join(', ')}`)
+	await bot.sendMessage(chat.id, `Мероприятие запланировано на ${date}, на ${time.join(', ')}`)
 
 	events.push({ text, message, date, callback_data: text, time, subs: [] })
 	updateJsonFile('events', events)
+
+	scheduleReminders(events.at(-1))
 }
 
 export const deleteEvent = async ({ chat }) => {
