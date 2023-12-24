@@ -64,20 +64,22 @@ export const addEvent = async ({ chat }) => {
 	let text = (await getUserMessage(chat.id, true, {
 		question: 'Как называется ваше мероприятие',
 		cancelMessage: 'Добавление мероприятия отменено'
-	})).trim()
+	}))
 
 	if (!text)
 		return
 
 	text = text.trim()
 
-	const message = await getUserMessage(chat.id, false, {
+	let message = await getUserMessage(chat.id, false, {
 		question: 'Введите сообщение, которое будет напоминать пользователю о мероприятии',
 		cancelMessage: 'Добавление мероприятия отменено'
 	})
 
 	if (!message)
 		return
+
+	message = { id: message.message_id, fromId: message.from.id }
 
 	const date = await getDate(chat.id)
 

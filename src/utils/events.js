@@ -5,6 +5,9 @@ import { events } from './admin.js'
 const eventSubscribe = async (chatId, data, { chat }) => {
 	if (chat.id === chatId) {
 		const updatingEvent = events.find(event => event.text === data)
+		if (!updatingEvent)
+			return
+
 		updatingEvent.subs.push(chatId)
 		updateJsonFile('events', events)
 
