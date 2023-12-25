@@ -63,7 +63,16 @@ export const addEvent = async ({ chat }) => {
 	updateJsonFile('events', events)
 }
 
-export const deleteEvent = async ({ chat }) => {
+export const deleteEvent = text => {
+	const deletingEventIdx = events.findIndex(event => event.text === text)
+
+	if (deletingEventIdx !== -1) {
+		events.splice(deletingEventIdx, 1)
+		fs.writeFileSync('tempdb.json', JSON.stringify({ events }), 'utf-8')
+	}
+}
+
+export const deleteEventCommand = async ({ chat }) => {
 	if (!adminIds.includes(chat.id))
 		return await bot.sendMessage(chat.id, 'Извините, но эта команда доступна только администраторам бота')
 

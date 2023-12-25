@@ -70,7 +70,6 @@ export const getTime = async chatId => {
 
 		question = checkTime(time)
 	}
-	console.log(question, time)
 
 	return sortTime(time)
 }

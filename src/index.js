@@ -4,7 +4,7 @@ import { bot } from './config.js'
 import { chooseEvent, getUserEvents, getOtherEvents } from './utils/events.js'
 import {
 	addEvent,
-	deleteEvent,
+	deleteEventCommand,
 	editEvent,
 	adminIds,
 	initEvents,
@@ -39,7 +39,7 @@ const init = () => {
 
 	bot.onText(/Редактировать приветствие/, editHelloText)
 	bot.onText(/Добавить мероприятие/, addEvent)
-	bot.onText(/Удалить мероприятие/, deleteEvent)
+	bot.onText(/Удалить мероприятие/, deleteEventCommand)
 	bot.onText(/Редактировать мероприятие/, editEvent)
 }
 
