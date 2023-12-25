@@ -1,6 +1,7 @@
 import Calendar from 'telegram-bot-calendar'
 
 import { bot } from '../../config.js'
+import { getUserMessage } from '../utils.js'
 
 export const checkTime = times => {
 	if (!Array.isArray(times))
@@ -13,7 +14,7 @@ export const checkTime = times => {
 			return `Вы ввели некорректное время. в 24-часовом формате не существует времени ${times[timeIdx]}`
 	}
 
-	return 0
+	return null
 }
 
 export const sortTime = timeArray => [ ...timeArray ].sort((time1, time2) => {
@@ -54,4 +55,22 @@ export const getDate = async chatId => {
 
 		bot.on('callback_query', handleCallbackQuery)
 	})
+}
+
+export const getTime = async chatId => {
+	let time = []
+	let question = 'Через запятую введите время, в которое вы хотели бы отправлять уведомления\nНапример:\n10:00, 12:00, 13:30, 15:45'
+
+	while (question) {
+		time = (await getUserMessage(chatId, true, { question, cancelMessage: 'Добавление мероприятия отменено' }))
+			.replace(/\s/g, '').split`,`
+
+		if (!time.length)
+			return
+
+		question = checkTime(time)
+	}
+	console.log(question, time)
+
+	return sortTime(time)
 }

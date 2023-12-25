@@ -1,6 +1,7 @@
+import { bot } from '../../config.js'
 import { getUserMessage } from '../utils.js'
 import { createReminders, deleteReminders } from './reminders.js'
-import { getDate } from './time.js'
+import { getDate, getTime } from './time.js'
 
 export const editEventName = async chatId => {
 	const text = await getUserMessage(chatId, true, {
@@ -21,14 +22,39 @@ export const editEventMessage = async chatId => {
 	})
 
 	if (message)
-		return { ...message }
+		return { id: message.message_id, fromId: message.from.id }
 }
 
 export const editEventDate = async (chatId, event) => {
 	event.date = await getDate(chatId)
 
+	if (!event.date) {
+		bot.sendMessage(chatId, 'Извините,что-то пошло не так, дата не изменена')
+
+		return
+	}
+
 	deleteReminders(event.text)
 	createReminders(event)
 
-	return event
+	bot.sendMessage(chatId, 'Дата мероприятия обновлена')
+
+	return event.date
+}
+
+export const editEventTime = async (chatId, event) => {
+	event.time = await getTime(chatId)
+
+	if (!event.time) {
+		bot.sendMessage(chatId, 'Извините,что-то пошло не так, время уведомлений не задано')
+
+		return
+	}
+
+	deleteReminders(event.text)
+	createReminders(event)
+
+	bot.sendMessage(chatId, 'Время уведомлений изменено')
+
+	return event.time
 }

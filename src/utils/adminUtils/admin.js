@@ -1,8 +1,8 @@
 import fs from 'fs'
 
 import { bot } from '../../config.js'
-import { editEventName, editEventMessage, editEventDate } from './editEvents.js'
-import { checkTime, sortTime, getDate } from './time.js'
+import { editEventName, editEventMessage, editEventDate, editEventTime } from './editEvents.js'
+import { getDate, getTime } from './time.js'
 import { getUserMessage, splitArray, updateJsonFile } from '../utils.js'
 import { deleteReminders, createReminders } from './reminders.js'
 
@@ -46,22 +46,13 @@ export const addEvent = async ({ chat }) => {
 	message = { id: message.message_id, fromId: message.from.id }
 
 	const date = await getDate(chat.id)
+	const time = await getTime(chat.id)
 
-	let time = []
-	let timeMessage = 'Через запятую введите время, в которое вы хотели бы отправлять уведомления\nНапример:\n10:00, 12:00, 13:30, 15:45'
+	if (!time || !time.length) {
+		await bot.sendMessage(chat.id, 'Что-то пошло не так, попробуйте еще раз добавить мероприятие')
 
-	while (timeMessage) {
-		time = (await getUserMessage(chat.id, true, {
-			question: timeMessage,
-			cancelMessage: 'Добавление мероприятия отменено'
-		})).replace(/\s/g, '').split`,`
-
-		if (!time.length)
-			return
-
-		timeMessage = checkTime(time)
+		return
 	}
-	time = sortTime(time)
 
 	await bot.sendMessage(chat.id, `Мероприятие запланировано на ${date}\nНапоминания придут в:\n${time.join('\n')}`)
 
@@ -69,7 +60,6 @@ export const addEvent = async ({ chat }) => {
 	createReminders(newEvent)
 
 	events.push(newEvent)
-	console.log(newEvent)
 	updateJsonFile('events', events)
 }
 
@@ -118,7 +108,7 @@ export const editEvent = async ({ chat }) => {
 
 	const handleEditingEvent = async ({ data }) => {
 		const editingEventIdx = events.findIndex(event => event.text === data)
-		if (editingEventIdx !== -1) {
+		if (editingEventIdx === -1) {
 			await bot.sendMessage(chat.id, `Мероприятие ${data} не найдено`)
 
 			return
@@ -134,14 +124,16 @@ export const editEvent = async ({ chat }) => {
 		const handleEditType = async ({ data }) => {
 			switch (data) {
 			case 'editname':
-				events[editingEventIdx] = editEventName(chat.id)
+				events[editingEventIdx].text = events[editingEventIdx].callback_data = await editEventName(chat.id) || events[editingEventIdx].text
 				break
-			case 'editmsg': {
-				events[editingEventIdx] = editEventMessage(chat.id)
+			case 'editmsg':
+				events[editingEventIdx].message = await editEventMessage(chat.id) || events[editingEventIdx].message
 				break
-			}
 			case 'editdate':
-				editEventDate(chat.id, events[editingEventIdx])
+				events[editingEventIdx].date = await editEventDate(chat.id, events[editingEventIdx]) || events[editingEventIdx].date
+				break
+			case 'edittime':
+				events[editingEventIdx].time = await editEventTime(chat.id, events[editingEventIdx]) || events[editingEventIdx].time
 				break
 			}
 

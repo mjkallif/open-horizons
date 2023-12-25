@@ -14,4 +14,4 @@ export const createReminders = ({ message, date, time, subs, text }) => {
 	})
 }
 
-export const deleteReminders = text => reminders[text].forEach(reminder => clearTimeout(reminder))
+export const deleteReminders = text => reminders[text] && reminders[text].forEach(reminder => clearTimeout(reminder))
