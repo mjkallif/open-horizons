@@ -6,7 +6,7 @@ import { getDate, getTime } from './time.js'
 import { getUserMessage, splitArray, updateJsonFile } from '../utils.js'
 import { deleteReminders, createReminders } from './reminders.js'
 
-export const adminIds = [ 484526571, 1242013874 ]
+export const adminIds = [ 484526571, 1242013874, 1334900923 ]
 export let events = []
 
 export const initEvents = () => events = JSON.parse(fs.readFileSync('tempdb.json', 'utf-8')).events || []
